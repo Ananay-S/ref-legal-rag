@@ -1,0 +1,31 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./data/qdrant:/qdrant/storage
+    restart: unless-stopped
+
+  bge-m3:
+    image: python:3.9-slim
+    working_dir: /workspace
+    command: ["python", "/workspace/services/model_server/src/main.py", "--mode", "embed", "--port", "8081"]
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./:/workspace
+      - ./data/models/bge-m3:/data/models/bge-m3:ro
+    restart: unless-stopped
+
+  bge-reranker-v2-m3:
+    image: python:3.9-slim
+    working_dir: /workspace
+    command: ["python", "/workspace/services/model_server/src/main.py", "--mode", "rerank", "--port", "8082"]
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./:/workspace
+      - ./data/models/bge-reranker-v2-m3:/data/models/bge-reranker-v2-m3:ro
+    restart: unless-stopped
+
